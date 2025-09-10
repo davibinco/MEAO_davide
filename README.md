@@ -9,7 +9,6 @@ numpy
 scipy
 pyscf
 block2
-dmrgscf
 ```
 
 # Reference
