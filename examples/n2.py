@@ -68,6 +68,7 @@ minfo = (odm1[:, None] + odm1[None, :] - odm2) * (1 - np.identity(len(odm1)))
 minfo = minfo / np.log(16)
 print('MI for MEAOs:',minfo*(minfo>0.1))
 
+# Print MI for each bond
 for bond in bonds:
     print('Bond:', bond, minfo[bond[0], bond[1]])
 
