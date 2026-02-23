@@ -7,7 +7,7 @@ from pyscf.lo import orth
 from functools import reduce
 from pyblock2._pyscf.ao2mo import integrals as itg
 from pyblock2.driver.core import DMRGDriver, SymmetryTypes
-from MEAO.tools import *
+from MEAO_davide.tools import *
 
 
 class MEAO:
