@@ -1,3 +1,8 @@
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+
 import numpy as np
 from math import pi
 from scipy.stats import ortho_group
@@ -26,11 +31,11 @@ for n in range(len(atoms)):
     xyz = xyz + (atoms[n]+' '+str(coords[n][0])+' '+str(coords[n][1])+' '+str(coords[n][2])+';')
 
 mol = gto.M(atom=xyz,
-    spin=0, verbose=4,basis='ccpvdz',unit = 'A',
+    spin=0, verbose=0,basis='ccpvdz',unit = 'A',
     max_memory=1000,symmetry = False) # mem in MB
 
 pmol = gto.M(atom=xyz,
-    spin=0, verbose=4,basis='minao',unit = 'A',
+    spin=0, verbose=0,basis='minao',unit = 'A',
     max_memory=1000,symmetry = False) # mem in MB
 
 aoslices = pmol.aoslice_by_atom()

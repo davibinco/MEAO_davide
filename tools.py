@@ -422,7 +422,7 @@ def max_coh(dm1,orbs_atomic_index,norbs_in_atoms,orb_alive):
     
     n=0
     cost_old = cost_at_0(dm10)
-    print(cost_old)
+    # print(cost_old)
     delta_cost = np.inf
     cost_min = np.inf
     level_shift = 1e-10
@@ -448,7 +448,7 @@ def max_coh(dm1,orbs_atomic_index,norbs_in_atoms,orb_alive):
 
         dm10_ = U @ dm10 @ U.T
         cost = cost_at_0(dm10_)
-        print(cost)
+        # print(cost)
         delta_cost = cost_old - cost
 
         if cost < cost_min:

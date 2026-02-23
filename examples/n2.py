@@ -1,3 +1,8 @@
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+
 import numpy as np
 from scipy.stats import ortho_group
 from pyscf import gto, scf
@@ -6,12 +11,12 @@ from pyscf.lo import orth
 from functools import reduce
 from pyblock2._pyscf.ao2mo import integrals as itg
 from pyblock2.driver.core import DMRGDriver, SymmetryTypes
-from ..tools import *
-from ..meao import MEAO
+from tools import *
+from meao import MEAO
 
 # Build the molecule of interest
 mol = gto.M(atom='N 0 0 0; N 0 0 1.094',
-    spin=0, verbose=0,basis='ccpvdz',unit='A',
+    spin=0, verbose=0,basis='sto-3g',unit='A',
     max_memory=1000,symmetry = False) # mem in MB
 
 # Build the reference MINAO molecule
@@ -20,9 +25,11 @@ pmol = gto.M(atom='N 0 0 0; N 0 0 1.094',
     max_memory=1000,symmetry = False) # mem in MB
 
 aoslices = pmol.aoslice_by_atom()
+print(aoslices)
 norbs_in_atoms = []
 for ia in range(pmol.natm):
     norbs_in_atoms.append(aoslices[ia][3]-aoslices[ia][2])
+    print(aoslices[ia][3]-aoslices[ia][2])
 
 # Run RHF calculation
 mf = scf.RHF(mol)
@@ -43,9 +50,16 @@ dm1_hf[mf.mo_occ>0,mf.mo_occ>0] = 2
 U = reduce(np.dot, (mo_iao.T,s,mo_hf))
 dm1_iao = U @ dm1_hf @ U.T
 
+
+print(mf.mo_occ)
+
+
+
 # Perform MEAO analysis and obtain bonding MEAOs
 my_meao = MEAO(mol, mf, mo_iao, norbs_in_atoms)
 my_meao.meao()
+
+exit()
 bonds = my_meao.get_bonds()
 print('Bonds:', bonds)
 
