@@ -1,3 +1,4 @@
+from pyscf import gto, scf, mcscf, fci
 import numpy as np
 from scipy.stats import ortho_group
 from pyscf import gto
@@ -26,20 +27,45 @@ class MEAO:
         
         mo_iao = self.lo_coeff
         nmo = mo_iao.shape[1]
-        
-        mo_hf = self.mf.mo_coeff
 
-        dm1_hf = np.zeros((len(mo_hf),len(mo_hf)))
-        dm1_hf[self.mf.mo_occ>0,self.mf.mo_occ>0] = 2
-
+        #we add the state-average
+        n_states = 2
+        weights = np.ones(n_states)/n_states
+        mycas = mcscf.CASSCF(self.mf, 6,6)
+        mycas.fcisolver = fci.direct_spin0.FCI(self.mol)
+        mycas.state_average_(weights)
+        mycas.kernel()
+        ci = mycas.ci
+        ci1 = ci[1]
+        D_mo_ee = fci.direct_spin0.make_rdm1(ci1, mycas.ncas, mycas.nelecas)
+        mycas.mo_occ = np.diagonal(D_mo_ee)
+        # Construct IAOs
+        orbocc = mycas.mo_coeff[:,mycas.mo_occ>0]
+        c = iao(self.mol, orbocc)
         s = self.mol.intor('int1e_ovlp')
-        U = reduce(np.dot, (mo_iao.T,s,mo_hf))
-        dm1_iao = U @ dm1_hf @ U.T
+        mo_iao = np.dot(c, orth.lowdin(reduce(np.dot, (c.T,s,c))))
+
+        # Construct 1RDM in HF basis
+        #mo_hf = mf.mo_coeff
+        #dm1_hf = np.zeros((len(mo_hf),len(mo_hf)))
+        #dm1_hf[mf.mo_occ>0,mf.mo_occ>0] = 2
+
+        #we substitute the above part for:
+
+        mo_sa = mycas.mo_coeff
+        dm1_sa = D_mo_ee
+        # U = reduce(np.dot, (mo_iao.T,s,mo_hf))
+        # dm1_iao = U @ dm1_hf @ U.T
+        U = reduce(np.dot, (mo_iao.T,s,mo_sa))
+        dm1_iao = U @ dm1_sa @ U.T
+
+        print(U)
+        print(dm1_iao)
 
         if self.dm_order == 1:
             U = max_coh(dm1_iao,self.orbs_atomic_index,self.norbs_in_atoms,orb_alive)
         elif self.dm_order == 2:
-            dm2_hf = make_rdm2_mean_field(dm1_hf)
+            dm2_hf = make_rdm2_mean_field(dm1_sa)
             dm2_iao = np.einsum('pi,qj,ijkl,rk,sl->pqrs', U, U, dm2_hf, U, U)
             U = max_coh_2rdm(dm1_iao,dm2_iao,self.orbs_atomic_index,self.norbs_in_atoms,orb_alive)
         else:
