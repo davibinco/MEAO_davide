@@ -533,7 +533,7 @@ def get_coh(ket,driver,i,j):
     return a,b
 
 def max_coh(dm1,orbs_atomic_index,norbs_in_atoms,orb_alive):
-    print('Optimizing MEAO...')
+    # print('Optimizing MEAO...')
     no = len(dm1)
     
     
@@ -665,7 +665,7 @@ def max_coh(dm1,orbs_atomic_index,norbs_in_atoms,orb_alive):
     
     n=0
     cost_old = cost_at_0(dm10)
-    print(cost_old)
+    # print(cost_old)
     delta_cost = np.inf
     cost_min = np.inf
     level_shift = 1e-10
@@ -691,7 +691,7 @@ def max_coh(dm1,orbs_atomic_index,norbs_in_atoms,orb_alive):
 
         dm10_ = U @ dm10 @ U.T
         cost = cost_at_0(dm10_)
-        print(cost)
+        # print(cost)
         delta_cost = cost_old - cost
 
         if cost < cost_min:
@@ -1222,11 +1222,30 @@ def find_disconnected_components(adj_matrix):
 
     return components_vertices
 
+def find_paired_components(MI):
+    n = MI.shape[0]
+
+    # Create a weighted graph from the MI matrix
+    G = nx.Graph()
+    for i in range(n):
+        for j in range(i+1, n):
+            G.add_edge(i, j, weight=MI[i, j])
+
+    # Find maximum weight matching (maximal = True ensures all nodes are covered)
+    matching = nx.max_weight_matching(G, maxcardinality=True)
+
+    # Convert to sorted list of tuples
+    paired = [tuple(sorted(pair)) for pair in matching]
+    paired.sort()
+
+    return paired
+
 def get_cluster_index(dm1, threshold):
     MI = MI_mean_field(dm1)
-    MI = (MI>threshold)
+    # MI = (MI>threshold)
 
-    clusters = find_disconnected_components(MI)
+    # clusters = find_disconnected_components(MI)
+    clusters = find_paired_components(MI)
 
     # keep only clusters with more than 1 orbital
     clusters = [cluster for cluster in clusters if len(cluster) > 1]
