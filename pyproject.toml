@@ -13,6 +13,7 @@ dependencies = [
     "numpy",
     "pyscf",
     "scipy",
+    "block2",
 ]
 
 [tool.setuptools]
