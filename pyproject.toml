@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "MEAO"
-version = "0.1.0"
+version = "1.0.0"
 description = "Maximally entangled atomic orbitals (MEAO) for bonding analysis"
 readme = "README.md"
 license = "MIT"
